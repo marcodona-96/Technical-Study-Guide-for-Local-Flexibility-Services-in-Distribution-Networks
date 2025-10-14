@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Flexibility Study Guide}
+\lhead{RSE Research Preparation}
+\rfoot{\thepage}
+
+%\hypersetup{
+%	colorlinks=true,
+%	linkcolor=blue,
+%	citecolor=blue,
+%	urlcolor=blue
+%}
+
+\title{Technical Study Guide\\for Local Flexibility Services in Distribution Networks}
+\author{Prepared by: Marco Donà}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	\tableofcontents
+	\newpage
+	
+	%---------------------%
+	\section{Introduction}
+	\begin{itemize}
+		\item Objectives of the study.
+		\item Position requirements overview.
+		\item How this document is structured.
+	\end{itemize}
+	
+	%---------------------%
+	\section{Fundamentals of Distribution Networks}
+	\subsection{Structure and Components}
+	\subsection{Radial vs Meshed Networks}
+	\subsection{Per Unit System and Base Values}
+	\subsection{Load Models and Profiles}
+	
+	%---------------------%
+	\section{Power Flow and Optimal Power Flow}
+	\subsection{AC and DC Power Flow}
+	\subsection{Optimal Power Flow (OPF): Introduction}
+	\subsection{Solving OPF: Convex Relaxations, Algorithms}
+	\subsection{Applications in Flexibility Analysis}
+	\subsection{Tools: MATPOWER, OpenDSS, PowerFactory (overview)}
+	
+	%---------------------%
+	\section{Flexibility in Distribution Networks}
+	\subsection{Definition and Importance}
+	\subsection{Types of Flexible Resources}
+	\begin{itemize}
+		\item Energy storage systems
+		\item Demand response
+		\item Renewable generation
+		\item Virtual Power Plants (VPPs)
+		\item Energy Communities
+	\end{itemize}
+	\subsection{Activation Mechanisms and Signals}
+	\subsection{Flexibility Potential Estimation}
+	\subsection{Multi-Energy Systems and Sector Coupling}
+	
+	%---------------------%
+	\section{Electricity Markets and Regulation}
+	\subsection{Overview of Electricity Markets}
+	\subsection{Local Ancillary Services and DSO Role}
+	\subsection{Italian and EU Regulatory Framework}
+	\subsection{Market Design for Local Flexibility}
+	\subsection{Case Studies and Pilot Projects}
+	
+	%---------------------%
+	\section{Optimization Techniques}
+	\subsection{Mathematical Optimization Basics}
+	\subsection{Convex Optimization}
+	\subsection{Mixed-Integer Linear/Nonlinear Programming}
+	\subsection{Stochastic and Robust Optimization}
+	\subsection{Flexibility Procurement as Optimization Problem}
+	\subsection{Tools: CVXPY, Pyomo, MATLAB, Julia/JuMP}
+	
+	%---------------------%
+	\section{Control Theory and Automation}
+	\subsection{Fundamentals of Control Systems}
+	\subsection{Predictive, Robust and Adaptive Control}
+	\subsection{Applications in Power Systems}
+	\subsection{Decentralized and Hierarchical Control in Smart Grids}
+	
+	%---------------------%
+	\section{Simulation Tools and Programming}
+	\subsection{Python for Power System Analysis}
+	\subsection{MATLAB/Simulink for Grid Modeling}
+	\subsection{Power System Simulators: OpenDSS, DIgSILENT PowerFactory}
+	\subsection{Numerical Experiment Design}
+	\subsection{Example: Simulating Flexibility Activation}
+	
+	%---------------------%
+	\section{Research Methodology and Project Participation}
+	\subsection{Scientific Method in Engineering Research}
+	\subsection{EU and National Projects: Horizon, PNRR, etc.}
+	\subsection{Writing Reports and Presenting Results}
+	\subsection{Collaboration and Communication in Research Teams}
+	
+	%---------------------%
+	\section{Appendices}
+	\subsection{Glossary of Terms}
+	\subsection{Useful Links and References}
+	\subsection{LaTeX Tips for Technical Writing}
+	
+\end{document}

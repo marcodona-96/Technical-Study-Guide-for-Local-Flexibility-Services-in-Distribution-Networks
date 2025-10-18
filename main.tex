@@ -10,6 +10,9 @@
 \usepackage{booktabs}
 \usepackage{fancyhdr}
 \usepackage{enumitem}
+\usepackage[official]{eurosym}
+
+\AddToHook{cmd/section/before}{\clearpage}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -532,6 +535,14 @@
 	The European power market is organized into multiple temporal and spatial layers, as illustrated in Figure~\ref{fig:market_layers}.  
 	Each layer corresponds to a specific time horizon and operational objective.
 	
+	\begin{figure}[ht]
+		\centering
+		\includegraphics[width=0.7\linewidth]{images/european_electricity_market_layers}
+		\caption{Overview of different timeframes of the wholesale and balancing markets.}
+		\label{fig:market_layers}
+	\end{figure}
+	
+	
 	\begin{itemize}
 		\item \textbf{Forward / Futures Market:} contracts for months or years ahead; used for hedging price risks.
 		\item \textbf{Day-Ahead Market (DAM):} determines the energy schedule for each hour of the next day through a market coupling algorithm (EUPHEMIA).
@@ -546,26 +557,79 @@
 	
 	\subsection{Day-Ahead Market (DAM)}
 	
-	The DAM is a \textit{centralized auction} where market participants submit energy bids/offers for each hour of the next day.  
-	The market operator (in Italy: \textbf{GME – Gestore dei Mercati Energetici}) clears the market by solving a welfare-maximizing optimization:
+	The \textit{Day-Ahead Market} (DAM) is a \textbf{centralized auction} in which electricity market participants submit energy bids and offers for each hour of the following day.  
+	In Italy, this market is managed by the \textbf{GME – Gestore dei Mercati Energetici}. The market aims to determine the hourly price and quantity allocations that \textbf{maximize social welfare} (the sum of producer and consumer surpluses) while respecting physical and operational network limits \cite{saadat2010power,wood2014power}.
+	
+	\medskip
+	Mathematically, the market clearing problem is formulated as:
 	\[
-	\max_{P_i} \; \sum_i (p_i^\text{bid} - c_i) P_i
+	\max_{P_i} \; \sum_i (p_i^{\text{bid}} - c_i) P_i
 	\]
 	subject to:
 	\[
 	\sum_i P_i = 0 \quad \text{(supply-demand balance)}
 	\]
-	and network constraints modeled through zonal coupling.
+	and additional \textbf{network constraints} that reflect transmission limits and zonal coupling.
 	
-	The output is the \textbf{Market Clearing Price (MCP)} for each zone and hour, and the accepted quantities $P_i^*$ for each participant.
+	\medskip
+	\noindent\textbf{Interpretation of terms:}
+	\begin{itemize}
+		\item $P_i$: quantity of energy (MW) accepted for participant $i$, positive for generators and negative for consumers.
+		\item $p_i^{\text{bid}}$: bid or offer price (\euro / MWh) submitted by participant $i$.
+		\item $c_i$: marginal production cost (\euro / MWh) of participant $i$.
+		\item $(p_i^{\text{bid}} - c_i)P_i$: individual surplus of participant $i$, i.e., the benefit derived from participating in the market.
+	\end{itemize}
+	
+	The objective function thus maximizes the total economic welfare:
+	\[
+	W = \sum_i (p_i^{\text{bid}} - c_i) P_i
+	\]
+	representing the aggregated surplus of all market participants \cite{grainger1994power}.
+	
+	\medskip
+	\noindent\textbf{Network constraints and zonal coupling:}  
+	Because the physical grid has limited transfer capacities between regions (zones), the DAM problem incorporates transmission constraints.  
+	Let $F_l$ denote the power flow on inter-zonal line $l$, and $F_l^{\max}$ its capacity limit. The coupling between zones can be represented as:
+	\[
+	\sum_{i \in \text{zone } k} P_i = \sum_{l \in \text{connections of } k} F_l, \quad |F_l| \le F_l^{\max}
+	\]
+	This ensures that total power generation and consumption remain balanced within each zone while respecting interconnection limits.  
+	If these limits become binding, prices diverge across zones, leading to distinct \textbf{Market Clearing Prices (MCP)}.
+	
+	\medskip
+	\noindent\textbf{Outputs of the market clearing:}
+	\begin{itemize}
+		\item The Market Clearing Price (MCP) for each zone and each hour.
+		\item The accepted quantities $P_i^*$ for each participant.
+		\item The total welfare (sum of consumer and producer surpluses).
+	\end{itemize}
+	
+	\medskip
+	\noindent\textbf{Example interpretation:}  
+	Suppose a producer offers $100$ MWh at \euro 80/MWh, and a consumer bids for $100$ MWh at \euro 120/MWh.  
+	The market clears at an equilibrium price of roughly \euro 100/MWh:
+	\begin{itemize}
+		\item Producer surplus: $(100 - 80) \times 100 = $ \euro$ 2{,}000$
+		\item Consumer surplus: $(120 - 100) \times 100 = $ \euro$ 2{,}000$
+	\end{itemize}
+	Hence, the total welfare equals \euro 4,000 — the objective that the DAM optimization seeks to maximize.
+	
+	\medskip
+	\noindent\textbf{Relation to flexibility:}  
+	The same welfare-maximizing framework can be extended to local flexibility markets, where distributed energy resources (DERs), storage systems, and flexible loads offer \textit{upward} or \textit{downward} flexibility.  
+	In such cases, the optimization is solved under Optimal Power Flow (OPF) constraints rather than simple zonal balances, ensuring that voltage limits, power flows, and system reliability are respected \cite{frank2018opf}.
+	
+	\medskip
+	In summary, the DAM plays a central role in electricity system operation: it coordinates generation and consumption across all market zones, determines reference prices, and establishes the baseline from which flexibility services and balancing mechanisms operate.
+
 	
 	\subsection{Balancing and Ancillary Services}
 	
-	Real-time balance is maintained by the TSO (in Italy: \textbf{Terna}) through the activation of \textbf{balancing resources}.  
+	Real-time balance is maintained by the TSO (in Italy: Terna) through the activation of \textbf{balancing resources}.  
 	These services include:
 	\begin{itemize}
-		\item \textbf{Frequency Containment Reserve (FCR):} automatic, local control within seconds;
-		\item \textbf{Frequency Restoration Reserve (FRR):} manual or automatic correction within minutes;
+		\item \textbf{Frequency Containment Process (FCP):} to contain frequency variations in the system caused by imbalances between generation and demand;
+		\item \textbf{Frequency Restoration Process (FRP):} to restore the frequency to its nominal value;
 		\item \textbf{Replacement Reserve (RR):} slower resources to restore reserves after activation.
 	\end{itemize}
 	
@@ -591,8 +655,15 @@
 		\item Maintain voltage profiles within statutory limits;
 		\item Support TSO-DSO coordination mechanisms.
 	\end{itemize}
+		
+	Flexibility can be offered by prosumers, storage, or aggregators.  
+	This approach aligns technical needs (DSO constraints) with economic incentives (market payments).
 	
-	The market clearing is often formulated as a \textbf{local optimal power flow} problem:
+	\subsubsection{Local Market Clearing as an Optimal Power Flow Problem}
+	
+	The local market clearing problem can be formulated as a \textbf{local Optimal Power Flow (OPF)} problem.  
+	The objective is to determine the optimal activation of flexible resources (e.g., batteries, demand response, distributed generation) that minimizes the total cost of flexibility while respecting all network and operational constraints \cite{molzahn2019opf,caramanis2016flexibility}.
+	
 	\[
 	\min_{P_i, Q_i} \; C_\text{flex}(P_i, Q_i)
 	\quad \text{s.t.} \quad
@@ -601,8 +672,27 @@
 	S_{ij} \le S_{ij}^{\max}
 	\]
 	
-	Flexibility can be offered by prosumers, storage, or aggregators.  
-	This approach aligns technical needs (DSO constraints) with economic incentives (market payments).
+	\begin{itemize}
+		\item \textbf{Objective function} $C_\text{flex}(P_i, Q_i)$ represents the total cost of activating flexibility, including compensation to participants and technical penalties (e.g., battery degradation).
+		\item \textbf{Power flow equations} $\mathbf{f}(V, \theta, P, Q) = 0$ ensure that, for each bus $i$, active and reactive power are balanced according to the AC power flow model:
+		\[
+		P_i^{G} - P_i^{D} = \sum_{j} |V_i||V_j|(G_{ij}\cos\theta_{ij} + B_{ij}\sin\theta_{ij})
+		\]
+		\[
+		Q_i^{G} - Q_i^{D} = \sum_{j} |V_i||V_j|(G_{ij}\sin\theta_{ij} - B_{ij}\cos\theta_{ij})
+		\]
+		\item \textbf{Voltage limits} $V^{\min} \le V \le V^{\max}$ maintain acceptable operating voltages (typically $0.9$–$1.1$ p.u.).
+		\item \textbf{Line flow constraints} $S_{ij} \le S_{ij}^{\max}$ prevent thermal overloading of feeders and transformers.
+	\end{itemize}
+	
+	In this framework, the optimization yields both:
+	\begin{itemize}
+		\item The optimal flexibility activations $(P_i^*, Q_i^*)$ for each resource.
+		\item The corresponding \textbf{locational marginal prices (LMPs)}, representing the marginal cost of supplying power at each node.
+	\end{itemize}
+	
+	This formulation allows the integration of flexibility services directly within the network operation layer, bridging economic signals (market prices) and physical feasibility (power flows).  
+	It represents the cornerstone of modern \textbf{local flexibility markets} and \textbf{DSO-led coordination mechanisms} in smart grids.
 	
 	\subsection{Regulatory Framework in the European Union}
 	
@@ -670,23 +760,23 @@
 	
 	\[
 	\begin{aligned}
-		\min_{x} \quad & f(x) \\
-		\text{s.t.} \quad & g_i(x) \le 0, \quad i = 1, \ldots, m \\
-		& h_j(x) = 0, \quad j = 1, \ldots, p
+		\min_{\mathbf{x}} \quad & f(\mathbf{x}) \\
+		\text{s.t.} \quad & g_i(\mathbf{x}) \le 0, \quad i = 1, \ldots, m \\
+		& h_j(\mathbf{x}) = 0, \quad j = 1, \ldots, p
 	\end{aligned}
 	\]
 	
 	where:
 	\begin{itemize}
-		\item $x \in \mathbb{R}^n$ is the vector of decision variables;
-		\item $f(x)$ is the \textbf{objective function};
-		\item $g_i(x)$ and $h_j(x)$ represent inequality and equality constraints.
+		\item $\mathbf{x} \in \mathbb{R}^n$ is the vector of decision variables;
+		\item $f:\mathcal{D}\subseteq\mathbb{R}^n\to\mathbb{R}$ is the \textbf{objective function};
+		\item $g_i:\mathbb{R}^n\to\mathbb{R}$ and $h_j:\mathbb{R}^n\to\mathbb{R}$ represent inequality and equality constraints.
 	\end{itemize}
 	
 	Common concepts:
 	\begin{itemize}
-		\item \textbf{Feasible region:} the set of all $x$ satisfying constraints;
-		\item \textbf{Global optimum:} the best feasible solution minimizing $f(x)$;
+		\item \textbf{Feasible region:} the set of all $\mathbf{x}$ satisfying constraints;
+		\item \textbf{Global optimum:} the best feasible solution minimizing $f(\mathbf{x})$;
 		\item \textbf{Local optimum:} a solution optimal only within a neighborhood;
 		\item \textbf{Lagrange multipliers:} indicate sensitivity of the objective to constraints;
 		\item \textbf{Duality:} relates the original problem (primal) and its dual, often simplifying analysis.
@@ -702,11 +792,22 @@
 	
 	\subsection{Convex Optimization}
 	
-	A problem is \textbf{convex} if both the feasible region and the objective function are convex:
+	A problem is said to be convex if both its objective function $f$ and its feasible region $\mathcal{X}\subseteq\mathbb{R}^n$ are convex.
+	
+	\paragraph{Convex objective function.}
+	The function $f:\mathcal{D}\subseteq\mathbb{R}^n\to\mathbb{R}$ is convex if, for any two points $\mathbf{x}_1, \mathbf{x}_2 \in \mathcal{D}$ and any $\lambda \in [0,1]$, the following inequality holds:
 	\[
-	f(\lambda x_1 + (1-\lambda)x_2) \le \lambda f(x_1) + (1-\lambda)f(x_2)
+	f(\lambda \mathbf{x}_1 + (1-\lambda)\mathbf{x}_2) \le \lambda f(\mathbf{x}_1) + (1-\lambda)f(\mathbf{x}_2)
 	\]
-	for all $\lambda \in [0,1]$.
+	This condition implies that the line segment between any two points on the graph of $f$ lies above or on the graph itself.
+	
+	\paragraph{Convex feasible region.}
+	The feasible region $\mathcal{X}$ is convex if, for any two feasible points $\mathbf{x}_1, \mathbf{x}_2 \in \mathcal{X}$, every convex combination of them is also feasible:
+	\[
+	\lambda \mathbf{x}_1 + (1-\lambda)\mathbf{x}_2 \in \mathcal{X} \quad \forall \lambda \in [0,1]
+	\]
+	In other words, $\mathcal{X}$ forms a convex set.
+	
 	
 	Convex problems are desirable because:
 	\begin{itemize}
@@ -715,17 +816,17 @@
 		\item duality theory guarantees strong results (KKT conditions).
 	\end{itemize}
 	
-	Examples:
-	\begin{itemize}
-		\item Linear Programming (LP): linear $f$, linear constraints;
-		\item Quadratic Programming (QP): quadratic $f$, linear constraints;
-		\item Second-Order Cone Programming (SOCP);
-		\item Semidefinite Programming (SDP): used in convex relaxations of OPF.
-	\end{itemize}
+	% Examples:
+	% \begin{itemize}
+	% 	\item Linear Programming (LP): linear $f$, linear constraints;
+	% 	\item Quadratic Programming (QP): quadratic $f$, linear constraints;
+	% 	\item Second-Order Cone Programming (SOCP);
+	% 	\item Semidefinite Programming (SDP): used in convex relaxations of OPF.
+	% \end{itemize}
 	
 	The \textbf{KKT conditions} (Karush–Kuhn–Tucker) are necessary and sufficient for optimality in convex problems:
 	\[
-	\nabla f(x^*) + \sum_i \lambda_i \nabla g_i(x^*) + \sum_j \mu_j \nabla h_j(x^*) = 0
+	\nabla f(\mathbf{x}^*) + \sum_i \lambda_i \nabla g_i(\mathbf{x}^*) + \sum_j \mu_j \nabla h_j(\mathbf{x}^*) = 0
 	\]
 	subject to feasibility and complementary slackness.
 	
@@ -738,14 +839,14 @@
 	
 	\subsection{Mixed-Integer Linear/Nonlinear Programming}
 	
-	\textbf{Mixed-Integer Linear Programming (MILP)} adds discrete decision variables ($x_i \in \{0,1\}$) to linear optimization, enabling modeling of on/off devices, unit commitment, or topology reconfiguration.
+	\textbf{Mixed-Integer Linear Programming (MILP)} adds discrete decision variables ($y_i \in \mathbb{Z}_+$) to linear optimization, enabling modeling of on/off devices, unit commitment, or topology reconfiguration.
 	
 	A general MILP problem:
 	\[
-	\min_{x,y} \quad c^T x + d^T y
+	\min_{\mathbf{x},\mathbf{y}} \quad \mathbf{c}^T \mathbf{x} + \mathbf{d}^T \mathbf{y}
 	\]
 	\[
-	\text{s.t.} \quad A x + B y \le b, \quad y \in \{0,1\}^n
+	\text{s.t.} \quad A \mathbf{x} + B \mathbf{y} \le b, \quad \mathbf{y} \in \mathbb{Z}^{n_y}_+
 	\]
 	
 	Examples of applications:
